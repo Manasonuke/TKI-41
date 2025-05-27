@@ -1,43 +1,36 @@
 #include <iostream>
 #include <fstream>
 #include <iterator>
-#include <vector>
 #include <algorithm>
+#include <vector>
 
 int main() {
-    // Открытие входных файлов
+    // Открываем файлы для чтения
     std::ifstream file1("name1.txt");
     std::ifstream file2("name2.txt");
 
-    if (!file1 || !file2) {
+    if (!file1.is_open() || !file2.is_open()) {
         std::cerr << "Ошибка открытия файлов!" << std::endl;
         return 1;
     }
 
-    // Итераторы для чтения вещественных чисел
-    std::istream_iterator<double> it1(file1), end;
-    std::istream_iterator<double> it2(file2);
+    // Итераторы для чтения чисел из файлов
+    std::istream_iterator<double> iter1(file1);
+    std::istream_iterator<double> end1;
 
-    // Векторы для хранения считанных данных
-    std::vector<double> A(it1, end); // Чтение из file1
-    std::vector<double> B(it2, end); // Чтение из file2
+    std::istream_iterator<double> iter2(file2);
+    std::istream_iterator<double> end2;
 
-    // Проверка, что количество чисел совпадает
-    if (A.size() != B.size()) {
-        std::cerr << "Файлы содержат разное количество чисел!" << std::endl;
-        return 2;
-    }
+    // Вектор для хранения результатов
+    std::vector<double> results;
 
-    // Вектор для хранения разностей
-    std::vector<double> result(A.size());
-
-    // Вычисление разностей B[i] - A[i]
-    std::transform(B.begin(), B.end(), A.begin(), result.begin(),
+    // Используем transform для вычисления разностей
+    std::transform(iter2, end2, iter1, std::back_inserter(results),
         [](double b, double a) { return b - a; });
 
-    // Вывод результата
-    std::ostream_iterator<double> out(std::cout, "\n");
-    std::copy(result.begin(), result.end(), out);
+    // Выводим результаты с помощью ostream_iterator
+    std::ostream_iterator<double> out_it(std::cout, "\n");
+    std::copy(results.begin(), results.end(), out_it);
 
     return 0;
 }
