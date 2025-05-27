@@ -3,6 +3,7 @@
 #include <iterator>
 #include <algorithm>
 #include <vector>
+#include <locale> // для setlocale
 
 int main() {
     // Для корректного вывода русских символов в Windows
@@ -17,23 +18,27 @@ int main() {
         return 1;
     }
 
-    // Итераторы для чтения чисел из файлов
-    std::istream_iterator<double> iter1(file1);
-    std::istream_iterator<double> end1;
+    // Считаем весь файл 1 в вектор v1
+    std::vector<double> v1((std::istream_iterator<double>(file1)), std::istream_iterator<double>());
 
-    std::istream_iterator<double> iter2(file2);
-    std::istream_iterator<double> end2;
+    // Считаем весь файл 2 в вектор v2
+    std::vector<double> v2((std::istream_iterator<double>(file2)), std::istream_iterator<double>());
 
-    // Вектор для хранения результатов
+    // Проверяем размеры, чтобы избежать ошибок
+    size_t size = std::min(v1.size(), v2.size());
+
     std::vector<double> results;
+    results.reserve(size);
 
-    // Используем transform для вычисления разностей
-    std::transform(iter2, end2, iter1, std::back_inserter(results),
+    // Вычисляем разности по длине меньшего вектора
+    std::transform(v2.begin(), v2.begin() + size,
+        v1.begin(), std::back_inserter(results),
         [](double b, double a) { return b - a; });
 
-    // Выводим результаты с помощью ostream_iterator
+    // Выводим результаты
     std::ostream_iterator<double> out_it(std::cout, "\n");
     std::copy(results.begin(), results.end(), out_it);
 
     return 0;
 }
+
